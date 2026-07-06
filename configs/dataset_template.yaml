@@ -1,0 +1,16 @@
+# Template dataset yaml for DigitalOrgdet training.
+# Expected layout:
+#   <DATA_ROOT>/train/images
+#   <DATA_ROOT>/train/labels
+#   <DATA_ROOT>/val/images
+#   <DATA_ROOT>/val/labels
+# Labels should use the standard normalized detection format:
+#   class_id x_center y_center width height
+path: ${DIGITALORG_DATA_ROOT}
+train: train/images
+val: val/images
+test: val/images
+nc: 2
+names:
+  - target class one
+  - target class two

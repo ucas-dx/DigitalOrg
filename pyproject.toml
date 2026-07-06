@@ -1,0 +1,18 @@
+[project]
+name = "digitalorg"
+version = "0.1.0"
+description = "Text-prompt organoid detection with SAM3 segmentation and ROI refine"
+requires-python = ">=3.10"
+dependencies = [
+  "fastapi",
+  "uvicorn",
+  "python-multipart",
+  "pyyaml",
+  "numpy",
+  "opencv-python",
+  "pillow",
+  "torch",
+]
+
+[tool.setuptools.packages.find]
+include = ["digitalorg*"]

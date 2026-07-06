@@ -1,0 +1,20 @@
+# Template configuration. Replace environment variables or override these values
+# with deployment-specific paths before running inference.
+digitalorgdet_repo: ${DIGITALORGDET_REPO}
+sam3_repo: ${SAM3_REPO}
+
+digitalorgdet_model: ${DIGITALORGDET_MODEL}
+digitalorgdet_weight: ${DIGITALORGDET_WEIGHT}
+
+sam3_bpe_path: ${SAM3_BPE_PATH}
+sam3_checkpoint: ${SAM3_CHECKPOINT}
+refine_checkpoint: ${DIGITALORG_REFINE_CHECKPOINT}
+
+device: cuda:0
+detect_conf: 0.001
+detect_iou: 0.7
+max_det: 3000
+min_box_area: 1.0
+roi_pad: 0.1
+mask_threshold: 0.5
+save_sam_masks: false

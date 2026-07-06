@@ -1,0 +1,48 @@
+# ConvNeXt-Tiny + DigitalOrgdet text-prompt detection head template.
+# Replace ${DIGITALORGDET_TINY_BACKBONE} with a valid backbone checkpoint path
+# before training from this structure.
+nc: 80
+ch: 3
+depth_multiple: 1.0
+width_multiple: 1.0
+scale: t
+scales: {t: [1.0, 1.0, 768]}
+
+backbone:
+  - [-1, 1, ConvNeXtV1, [1, "tiny", 3, "'${DIGITALORGDET_TINY_BACKBONE}'", [0, 1, 2, 3]]]
+  - [0, 1, Index, [96,  0]]
+  - [0, 1, Index, [192, 1]]
+  - [0, 1, Index, [384, 2]]
+  - [0, 1, Index, [768, 3]]
+
+head:
+  - [4, 1, Conv,  [256, 1, 1]]
+  - [5, 1, SPPF,  [256, 5]]
+  - [6, 1, nn.Upsample, [None, 2, 'nearest']]
+  - [3, 1, Conv,  [256, 1, 1]]
+  - [[8, 7], 1, Concat, [1]]
+  - [9, 3, C2f,  [256, True]]
+
+  - [10, 1, nn.Upsample, [None, 2, 'nearest']]
+  - [2,  1, Conv,  [128, 1, 1]]
+  - [[12, 11], 1, Concat, [1]]
+  - [13, 3, C2f,  [128, True]]
+
+  - [14, 1, nn.Upsample, [None, 2, 'nearest']]
+  - [1,  1, Conv,  [64, 1, 1]]
+  - [[16, 15], 1, Concat, [1]]
+  - [17, 3, C2f,  [64, True]]
+
+  - [18, 1, Conv,  [64, 3, 2]]
+  - [[19, 14], 1, Concat, [1]]
+  - [20, 3, C2f,  [128, True]]
+
+  - [21, 1, Conv,  [128, 3, 2]]
+  - [[22, 10], 1, Concat, [1]]
+  - [23, 3, C2f,  [256, True]]
+
+  - [24, 1, Conv,  [256, 3, 2]]
+  - [[25, 6], 1, Concat, [1]]
+  - [26, 3, C2f,  [512, True]]
+
+  - [[18, 21, 24, 27], 1, WorldDetect, [nc, 512, True]]
