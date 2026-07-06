@@ -1,7 +1,8 @@
-[project]
+﻿[project]
 name = "digitalorg"
 version = "0.1.0"
-description = "Text-prompt organoid detection with SAM3 segmentation and ROI refine"
+description = "Text-prompt organoid detection with SAM-family segmentation and ROI refine"
+license = { text = "GPL-3.0-or-later" }
 requires-python = ">=3.10"
 dependencies = [
   "fastapi",
@@ -16,3 +17,4 @@ dependencies = [
 
 [tool.setuptools.packages.find]
 include = ["digitalorg*"]
+

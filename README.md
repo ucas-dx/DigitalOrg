@@ -312,6 +312,10 @@ curl -X POST http://127.0.0.1:8088/predict/video_geo \
 - The included visual examples are documentation assets derived from existing DigitalOrg analysis outputs.
 - Review third-party dependency licenses before redistribution.
 
+## License
+
+DigitalOrg is released under the GNU General Public License v3.0 or later. See [LICENSE](LICENSE) for the full license text.
+
 ## Citation
 
 If you use DigitalOrg, please cite the associated manuscript once available.
@@ -324,6 +328,7 @@ If you use DigitalOrg, please cite the associated manuscript once available.
   year    = {2026}
 }
 ```
+
 
 
 
