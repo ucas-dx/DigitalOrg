@@ -1,0 +1,54 @@
+# convnext-atto + YOLO-World style head (WorldDetect) [scratch backbone]
+#
+# Notes
+# - This YAML uses a ConvNeXt-V1 (atto) backbone and keeps the existing FPN neck.
+# - Only the final detection head is changed from Detect -> WorldDetect to enable text-embedding guided classification.
+# - To train as a YOLO-World model, instantiate with `YOLOWorld(...)` (file name does not include "world").
+#
+# Parameters
+nc: 80  # max number of text samples (will be overridden by dataset nc during training)
+ch: 3
+depth_multiple: 1.0
+width_multiple: 1.0
+scale: a
+scales: {a: [1.0, 1.0, 320]}  # Atto backbone max channels = 320
+
+backbone:
+  - [-1, 1, ConvNeXtV1, [1, "atto", 3, '""', [0, 1, 2, 3]]]
+  - [0, 1, Index, [40,  0]]    # P2:  40
+  - [0, 1, Index, [80,  1]]    # P3:  80
+  - [0, 1, Index, [160, 2]]    # P4: 160
+  - [0, 1, Index, [320, 3]]    # P5: 320
+
+head:
+  - [4, 1, Conv,  [256, 1, 1]]                 # 320 -> 256
+  - [5, 1, SPPF,  [256, 5]]
+  - [6, 1, nn.Upsample, [None, 2, 'nearest']]
+  - [3, 1, Conv,  [256, 1, 1]]                 # 160 -> 256
+  - [[8, 7], 1, Concat, [1]]
+  - [9, 3, C2f,  [256, True]]                  # P4_td 256
+
+  - [10, 1, nn.Upsample, [None, 2, 'nearest']]
+  - [2,  1, Conv,  [128, 1, 1]]                # 80 -> 128
+  - [[12, 11], 1, Concat, [1]]
+  - [13, 3, C2f,  [128, True]]                 # P3_td 128
+
+  - [14, 1, nn.Upsample, [None, 2, 'nearest']]
+  - [1,  1, Conv,  [64, 1, 1]]                 # 40 -> 64
+  - [[16, 15], 1, Concat, [1]]
+  - [17, 3, C2f,  [64, True]]                  # P2_out 64
+
+  - [18, 1, Conv,  [64, 3, 2]]
+  - [[19, 14], 1, Concat, [1]]
+  - [20, 3, C2f,  [128, True]]                 # P3_out 128
+
+  - [21, 1, Conv,  [128, 3, 2]]
+  - [[22, 10], 1, Concat, [1]]
+  - [23, 3, C2f,  [256, True]]                 # P4_out 256
+
+  - [24, 1, Conv,  [256, 3, 2]]
+  - [[25, 6], 1, Concat, [1]]
+  - [26, 3, C2f,  [512, True]]                 # P5_out 512
+
+  # WorldDetect expects (features, text_embeddings)
+  - [[18, 21, 24, 27], 1, WorldDetect, [nc, 512, True]]

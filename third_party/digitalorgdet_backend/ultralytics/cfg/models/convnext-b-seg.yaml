@@ -1,0 +1,24 @@
+# convnext_fpn_base_seg.yaml
+# ConvNeXt-Base backbone + 单尺度 (P5) 分割头，不使用 FPN
+
+nc: 80        # number of classes
+ch: 3         # input channels
+depth_multiple: 1.0
+width_multiple: 1.0
+scale: b
+scales: {b: [1.0, 1.0, 1024]}  # max backbone channels = 1024 for ConvNeXt-Base
+
+backbone:
+  # [from, repeats, module, args]
+  # ConvNeXtV1 backbone，输出 4 个 stage 特征 (P2~P5)
+  - [-1, 1, ConvNeXtV1, [1, "base", 3, null, [0, 1, 2, 3]]]
+  - [0, 1, Index, [128,  0]]    # P2 (当前 head 不使用，但保留以兼容原实现)
+  - [0, 1, Index, [256,  1]]    # P3
+  - [0, 1, Index, [512,  2]]    # P4
+  - [0, 1, Index, [1024, 3]]    # P5：stride 32，head 只使用这一层
+
+head:
+  # 直接在最底层特征 (P5) 上做分割，不构建 FPN
+  - [4, 1, Conv,  [256, 1, 1]]          # 1024 -> 256，压缩通道
+  - [[5], 1, Segment, [nc, 32, 256]]    # 单尺度 Segment 头 (使用 P5)
+
