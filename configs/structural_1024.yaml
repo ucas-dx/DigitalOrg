@@ -1,0 +1,25 @@
+# Opt-in SAM3 box-mask optimization. Legacy inference remains the default.
+digitalorgdet_repo: ${DIGITALORGDET_REPO}
+sam3_repo: ${SAM3_REPO}
+digitalorgdet_model: ${DIGITALORGDET_MODEL}
+digitalorgdet_weight: ${DIGITALORGDET_WEIGHT}
+sam3_bpe_path: ${SAM3_BPE_PATH}
+sam3_checkpoint: ${SAM3_CHECKPOINT}
+refine_checkpoint: ${DIGITALORG_REFINE_CHECKPOINT}
+device: cuda:0
+refine_backend: lowres_stream
+fast_refine_exact: true
+fast_refine_precision: fp32
+fast_refine_graphs: true
+fast_refine_fused_roi: false
+fast_refine_channels_last: false
+fast_refine_shared_image_kv: false
+fast_refine_max_instances: 100
+fast_refine_prefetch_depth: 2
+fast_refine_decode_workers: 2
+fast_refine_box_only: true
+# Validated split scheduling. Disable if the deployment benchmark shows no gain.
+fast_refine_overlap: true
+roi_pad: 0.1
+mask_threshold: 0.5
+save_sam_masks: false

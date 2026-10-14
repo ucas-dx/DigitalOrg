@@ -31,9 +31,37 @@ class DigitalOrgConfig:
     mask_threshold: float = 0.5
 
     save_sam_masks: bool = False
+    refine_backend: str = "legacy"
+    fast_refine_precision: str = "fp32"
+    fast_refine_exact: bool = True
+    fast_refine_graphs: bool = True
+    fast_refine_fused_roi: bool = False
+    fast_refine_channels_last: bool = False
+    fast_refine_max_instances: int = 100
+    fast_refine_shared_image_kv: bool = False
+    fast_refine_prefetch_depth: int = 2
+    fast_refine_decode_workers: int = 2
+    fast_refine_box_only: bool = False
+    fast_refine_overlap: bool = False
     extra: dict[str, Any] = field(default_factory=dict)
 
     def __post_init__(self) -> None:
+        if self.refine_backend not in ("legacy", "lowres_fast", "lowres_stream"):
+            raise ValueError("refine_backend must be legacy, lowres_fast or lowres_stream")
+        if self.fast_refine_precision not in ("fp32", "fp16"):
+            raise ValueError("fast_refine_precision must be fp32 or fp16")
+        if self.fast_refine_max_instances < 1:
+            raise ValueError("fast_refine_max_instances must be positive")
+        if self.fast_refine_prefetch_depth < 1 or self.fast_refine_decode_workers < 1:
+            raise ValueError("prefetch depth and decode workers must be positive")
+        if self.fast_refine_box_only or self.fast_refine_overlap:
+            if self.refine_backend != "lowres_stream" or not self.fast_refine_exact:
+                raise ValueError("Structural optimization requires lowres_stream with exact mode")
+        if self.fast_refine_overlap and not self.fast_refine_box_only:
+            raise ValueError("Overlap requires the box-only structural adapter")
+        if self.refine_backend != "legacy" and self.fast_refine_exact:
+            if self.fast_refine_precision != "fp32" or self.fast_refine_fused_roi or self.fast_refine_channels_last or self.fast_refine_shared_image_kv:
+                raise ValueError("Exact mode requires FP32, original interpolation/layout and no shared KV projections")
         self._expand_paths()
 
     @classmethod

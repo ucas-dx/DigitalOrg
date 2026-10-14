@@ -59,6 +59,30 @@ export DIGITALORG_REFINE_CHECKPOINT=/path/to/refine_checkpoint.pt
 export CONVNEXT_CKPT=/path/to/convnext_checkpoint.pt
 ```
 
+## Optional exact-output SAM3 inference optimization
+
+For 1024 x 1024 images with at most 100 supplied boxes, an opt-in backend keeps
+SAM soft-prior cropping at low resolution and adds resident model execution,
+CUDA graph replay, bounded prefetch, and asynchronous transfers. The structural
+preset also skips unused SAM3 neck branches and overlaps mask-independent
+Refine computation with SAM decoding. The default `legacy` backend is unchanged.
+
+After setting the checkpoint environment variables above:
+
+```bash
+python scripts/infer_image.py --config configs/structural_1024.yaml --image inputs/image_001.png --prompts "organoid" --output-dir outputs/optimized
+```
+
+The input must already be 1024-square. Boxes use the same image coordinates.
+More than 100 detections raises an error rather than silently dropping targets
+or changing the reference batch. The reported throughput applies to the
+segmentation stage with supplied boxes, not detection or output-file writing.
+
+This backend matches the tested FP32 **low-resolution soft-prior reference**,
+not the legacy full-mask wrapper or the manuscript's SAM2 implementation.
+Validate new weights and environments before changing an evaluation pipeline.
+See [optimization, scope and validation instructions](docs/fast_refinement.md).
+
 ## Expected input formats
 
 Image inference accepts common microscopy image formats such as `jpg`, `png`, `tif`, and `tiff`.

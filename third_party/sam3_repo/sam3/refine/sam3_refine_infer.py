@@ -76,7 +76,7 @@ def infer_one_sam3_inst(
             multimask_output=False,
         )
 
-    sam_masks = [(m.squeeze(0).astype(np.uint8) * 255) for m in masks_np]
+    sam_masks = [(m.reshape(image.height, image.width).astype(np.uint8) * 255) for m in masks_np]
     return sam_masks
 
 
@@ -125,7 +125,7 @@ def infer_one_sam3_with_refine(
             multimask_output=False,
         )
 
-    sam_masks = [(m.squeeze(0).astype(np.uint8) * 255) for m in masks_np]
+    sam_masks = [(m.reshape(image.height, image.width).astype(np.uint8) * 255) for m in masks_np]
 
     # build refine net
     refine_net = ROIRefineNet(variant="atto", convnext_ckpt=None, use_prompt=True, build_prompt=False)
